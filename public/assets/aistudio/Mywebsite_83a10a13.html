@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="KaryaSync is an AI meeting documentation assistant that turns raw notes into summaries, decisions, action items and open questions.">
+<title>KaryaSync | AI Meeting Documentation Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--k:#050507;--k2:#0d0e13;--paper:#fff4d6;--mute:#a3a3ae;--amber:#ffc72c;--ice:#3d8bff;--red:#ec1d24;--grn:#7be3a1;--pink:#ff7aa8;--disp:"Bangers",Impact,sans-serif;--sans:"Instrument Sans",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--k);color:var(--paper);font:400 1rem/1.65 var(--sans);overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto}}
+
+/* hero */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(60% 50% at 82% 100%,rgba(255,199,44,.32),transparent 70%),radial-gradient(70% 60% at 10% 0%,rgba(61,139,255,.18),transparent 70%),#07080c}
+.hero::before,.hero::after{content:"";position:absolute;left:0;right:0;height:6vh;background:#000;z-index:6}
+.hero::before{top:0}.hero::after{bottom:0}
+.dots{position:absolute;inset:0;opacity:.18;background:radial-gradient(var(--ice) 1.2px,transparent 1.4px) 0 0/16px 16px;mask-image:radial-gradient(70% 70% at 80% 40%,#000,transparent)}
+.beam{position:absolute;left:-10%;width:120%;top:42%;height:3px;background:linear-gradient(90deg,transparent,var(--red) 30%,var(--amber) 50%,var(--red) 70%,transparent);box-shadow:0 0 70px 18px rgba(236,29,36,.4);animation:sweep 9s ease-in-out infinite}
+@keyframes sweep{0%,100%{transform:translateX(-12%) scaleX(.7);opacity:.5}50%{transform:translateX(12%);opacity:1}}
+.hero .wrap{position:relative;z-index:7;flex:1;display:flex;flex-direction:column;width:100%}
+nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:calc(6vh + 16px) 0 0}
+.brand{font:400 1.9rem var(--disp);letter-spacing:.06em}.brand i{color:var(--amber);font-style:normal}
+nav ul{display:flex;gap:20px;list-style:none;padding:0;flex-wrap:wrap;font-size:.9rem}
+nav a{text-decoration:none;color:var(--mute)}nav a:hover{color:var(--paper)}
+.slate{margin-top:34px;display:inline-flex;align-self:flex-start;border:1px solid rgba(255,244,214,.2);border-radius:6px;overflow:hidden;font-size:.82rem;background:rgba(0,0,0,.5)}
+.slate b{width:50px;background:repeating-linear-gradient(135deg,var(--paper) 0 9px,#111 9px 18px)}
+.slate span{padding:6px 14px}
+h1{margin:14px 0 0;font:400 clamp(4rem,13vw,10rem)/.88 var(--disp);letter-spacing:.01em;text-transform:uppercase;text-shadow:5px 5px 0 var(--red)}
+h1 span{display:block;color:transparent;-webkit-text-stroke:2px var(--paper);text-shadow:none}
+h1 em{font-style:normal;color:var(--amber)}
+.low{margin-top:auto;padding:30px 0 calc(6vh + 24px);display:grid;grid-template-columns:1.1fr 1fr;gap:36px;align-items:end}
+.tag{font-size:1.2rem;max-width:25em;color:#ddd8cb}
+.cta{margin-top:20px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-block;text-decoration:none;font-weight:600;padding:12px 22px;border:2px solid #000;border-radius:4px;background:var(--amber);color:#1a0f00;box-shadow:4px 4px 0 var(--red);cursor:pointer;font-family:var(--sans);font-size:.95rem;transition:transform .15s}
+.btn:hover{transform:translate(-2px,-2px)}
+.btn.g{background:transparent;color:var(--paper);border-color:var(--paper)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.vf{position:relative;background:rgba(8,9,13,.8);padding:20px 22px;border-radius:4px}
+.vf::before,.vf::after{content:"";position:absolute;width:24px;height:24px;border:2px solid var(--paper)}
+.vf::before{top:-8px;left:-8px;border-right:0;border-bottom:0}.vf::after{bottom:-8px;right:-8px;border-left:0;border-top:0}
+.vf-h{display:flex;justify-content:space-between;font-size:.8rem;color:var(--mute);margin-bottom:10px}
+.rec{color:var(--red);font-weight:600}
+.rec::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:6px;animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.ln{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid rgba(255,244,214,.14);font-size:.92rem;animation:settle .9s ease var(--d) both}
+.ln:last-child{border:0}.ln b{min-width:3.4em}
+.ln u{margin-left:auto;text-decoration:none;font-size:.72rem;font-weight:600;padding:2px 9px;border-radius:999px;color:#08090c}
+.u-d{background:var(--ice)}.u-a{background:var(--amber)}.u-q{background:var(--pink)}
+@keyframes settle{from{opacity:0;filter:blur(6px);transform:translateY(10px) rotate(-1deg)}to{opacity:1;filter:none;transform:none}}
+
+/* sections */
+section{padding:96px 0 10px}
+.sc{display:flex;align-items:center;gap:12px;color:var(--amber);font-weight:600;font-size:.9rem;margin-bottom:12px}
+.sc::before{content:"";width:40px;height:2px;background:var(--amber)}
+h2{font:400 clamp(2.4rem,6vw,4.6rem)/.95 var(--disp);text-transform:uppercase;letter-spacing:.02em;text-shadow:4px 4px 0 var(--red);max-width:14em;margin-bottom:16px}
+h3{font:400 1.5rem var(--disp);letter-spacing:.04em}
+.lead{color:var(--mute);max-width:42em;font-size:1.05rem}
+.grid{display:grid;gap:22px;margin-top:34px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.box{border:2px solid var(--paper);box-shadow:5px 5px 0 var(--red);padding:18px;background:var(--k2)}
+.box p{color:#d3cec0;font-size:.95rem;margin-top:6px}
+.box ul{padding-left:18px;color:#d3cec0;font-size:.95rem;margin-top:6px}
+.num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--amber);color:#000;font:400 1.05rem var(--disp);border:2px solid #000;margin-bottom:6px}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--amber);color:#000;margin-bottom:6px}
+.code{border:2px dashed var(--amber);padding:14px;font-size:.88rem;color:#e8e2d0;margin-top:22px}
+
+/* example + output doc */
+.doc{background:var(--paper);color:#17140c;border:2px solid #000;box-shadow:6px 6px 0 var(--ice);padding:20px;font-size:.93rem}
+.doc h3{color:var(--red);margin:12px 0 4px}.doc h3:first-child{margin-top:0}
+.doc ul{padding-left:18px}
+.doc table{width:100%;border-collapse:collapse;font-size:.88rem}
+.doc th{background:var(--red);color:#fff;font:400 1.05rem var(--disp);letter-spacing:.05em;text-align:left;padding:6px 10px}
+.doc td{padding:6px 10px;border-bottom:1px solid #0002;vertical-align:top}
+.src{display:block;font-size:.78rem;color:#555;font-style:italic}
+.raw{font-size:.9rem;white-space:pre-wrap;color:#d3cec0}
+
+/* automation */
+.flow{display:flex;flex-wrap:wrap;margin-top:32px}
+.nd{flex:1 1 150px;position:relative;margin:0 22px 18px 0;padding:12px 14px;border:2px solid var(--paper);box-shadow:4px 4px 0 var(--red);background:var(--k2)}
+.nd:last-child{margin-right:0}
+.nd:not(:last-child)::after{content:"";position:absolute;right:-20px;top:50%;transform:translateY(-50%);border:9px solid transparent;border-left:13px solid var(--amber);border-right:0}
+.nd p{font-size:.86rem;color:#d3cec0}
+
+/* live demo */
+.live{border:2px solid var(--ice);box-shadow:6px 6px 0 var(--red);padding:18px;background:var(--k2)}
+.tool{align-items:start}
+textarea{width:100%;background:var(--paper);color:#0b0b0d;border:2px solid #000;padding:10px 12px;font:500 .93rem/1.5 var(--sans);resize:vertical;margin:10px 0}
+.f{display:block;width:100%;margin:6px 0;background:var(--paper);color:#0b0b0d;border:2px solid #000;padding:8px 10px;font:500 .9rem var(--sans)}
+.opt{display:flex;gap:18px;flex-wrap:wrap;font-size:.92rem}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.note{font-size:.82rem;color:var(--mute);margin-top:10px}
+.rv{display:flex;gap:8px;align-items:center;margin:14px 0 10px;font-size:.92rem}
+footer{margin-top:90px;padding:34px 0;border-top:2px solid var(--red);color:var(--mute);font-size:.85rem;text-align:center}
+.top{position:fixed;right:16px;bottom:16px;z-index:20;text-decoration:none;background:var(--red);color:#fff;border:2px solid var(--paper);box-shadow:4px 4px 0 var(--amber);padding:6px 14px;font:400 1.1rem var(--disp)}
+@media(max-width:900px){.low,.g2,.g3,.g4{grid-template-columns:1fr}.nd{margin-right:0}.nd::after{display:none!important}}
+
+.bar{position:sticky;top:0;z-index:30;background:rgba(5,5,7,.94);backdrop-filter:blur(6px);border-bottom:2px solid var(--red)}
+.bar .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.bar ul{display:flex;gap:18px;list-style:none;padding:0;flex-wrap:wrap;font-size:.9rem}
+.bar a{text-decoration:none;color:var(--mute)}.bar a:hover{color:var(--paper)}
+.bar a.btn{color:#1a0f00;padding:6px 14px;box-shadow:3px 3px 0 var(--red)}
+.hero{min-height:0;padding:calc(6vh + 28px) 0 calc(6vh + 20px)}
+.hero h1{font-size:clamp(3.4rem,10vw,7.5rem)}
+.low{margin-top:24px;padding:0}
+section{scroll-margin-top:56px}
+.tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.tabs button{font:400 1.1rem var(--disp);letter-spacing:.04em;background:transparent;color:var(--paper);border:2px solid var(--paper);padding:2px 14px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--amber);color:#000;border-color:#000}
+.tog{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;margin:8px 0}
+.warn{border:2px solid var(--red);background:#ec1d2418;padding:8px 12px;font-size:.88rem;margin-bottom:10px;font-weight:600}
+.miss{color:var(--red);font-weight:600}
+.doc pre{white-space:pre-wrap;font:500 .88rem/1.5 var(--sans)}
+.scroll{overflow-x:auto;margin-top:26px}
+.cmp{width:100%;border-collapse:collapse;min-width:640px;font-size:.92rem}
+.cmp th{background:var(--red);color:#fff;font:400 1.15rem var(--disp);letter-spacing:.05em;text-align:left;padding:10px 12px}
+.cmp td{padding:10px 12px;border-bottom:2px solid rgba(255,244,214,.18);vertical-align:top}
+.cmp td:first-child{font-weight:600}
+
+.vf u{opacity:0;transition:opacity .5s}.vf.tagged u{opacity:1}
+.ws{display:grid;grid-template-columns:250px minmax(0,1fr) 330px;border:2px solid var(--paper);box-shadow:6px 6px 0 var(--red);background:var(--k2);height:820px;margin-top:30px}
+.pane{overflow-y:auto;padding:14px;min-width:0}
+.pane+.pane{border-left:2px solid rgba(255,244,214,.25)}
+.ctr{display:flex;flex-direction:column;padding:0;overflow:hidden;background:var(--paper);color:#17140c}
+.xbar{position:sticky;top:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 12px;background:#17140c;border-bottom:2px solid #000;flex-shrink:0}
+.xbar .btn{padding:3px 10px;font-size:.8rem;box-shadow:2px 2px 0 var(--red)}
+.xbar .rv{color:var(--paper);font-size:.8rem}
+.canvas{flex:1;overflow-y:auto;padding:18px;font-size:.93rem}
+.canvas h3{color:var(--red);margin:14px 0 4px}.canvas h3.ct{color:#17140c;font-size:2rem;margin:0 0 6px}
+.canvas ul{padding-left:18px}
+.canvas [contenteditable]:focus{outline:2px solid var(--ice);background:#fff}
+.meta{display:flex;gap:8px;flex-wrap:wrap;font-size:.8rem;margin-bottom:8px;align-items:center}
+.meta span,.meta input{border:2px solid #000;background:#fff;padding:1px 8px;color:#000;font:500 .8rem var(--sans)}
+.cal{border-left:6px solid var(--ice);background:#e3edff;padding:8px 12px;margin:6px 0;display:flex;gap:8px;align-items:baseline;justify-content:space-between}
+.ar{display:grid;grid-template-columns:22px minmax(0,1fr) 96px 86px auto;gap:6px;align-items:center;margin:6px 0}
+.ar input[type=text]{border:2px solid #000;padding:4px 6px;font:500 .85rem var(--sans);background:#fff;color:#000;min-width:0;width:100%}
+.ar input.bad{border-color:var(--red);background:#ffe8e8}
+.ar.done .t{text-decoration:line-through;opacity:.55}
+.lk{font:600 .72rem var(--sans);background:transparent;border:2px solid #000;color:#17140c;cursor:pointer;padding:1px 8px;border-radius:999px;margin-left:8px}
+.lk:hover{background:var(--amber)}
+.mt{display:flex;justify-content:space-between;gap:6px;margin-top:6px;border:1px solid rgba(255,244,214,.25)}
+.mt button{background:transparent;border:0;color:var(--paper);font:500 .85rem var(--sans);padding:7px 8px;cursor:pointer;text-align:left}
+.mt button:first-child{flex:1}
+.sl{display:flex;gap:8px;font-size:.85rem;padding:5px 6px;border-left:4px solid transparent}
+.sl b{color:var(--mute);min-width:1.4em}
+.sl.d{border-color:var(--ice)}.sl.a{border-color:var(--amber)}.sl.q{border-color:var(--pink)}
+.sl.hl{background:#ffc72c33;outline:1px solid var(--amber)}
+.chatb{margin-top:16px;border-top:2px solid rgba(255,244,214,.25);padding-top:10px}
+#chat{max-height:200px;overflow-y:auto}
+.cm{font-size:.85rem;padding:6px 10px;margin:6px 0;border:2px solid #000;border-radius:10px;white-space:pre-wrap;color:#0b0b0d}
+.cm.b{background:var(--paper)}.cm.u{background:var(--amber);margin-left:18%}
+.try{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.try button{font:400 .95rem var(--disp);background:transparent;color:var(--paper);border:2px solid var(--paper);padding:1px 10px;cursor:pointer}
+.try button:hover{border-color:var(--amber);color:var(--amber)}
+@media(max-width:1000px){.ws{grid-template-columns:1fr;height:auto}.pane{max-height:none}.pane+.pane{border-left:0;border-top:2px solid rgba(255,244,214,.25)}.canvas{overflow:visible}.ctr{overflow:visible}.ar{grid-template-columns:22px 1fr 1fr;}.ar .t{grid-column:2/4}}
+@media print{body *{visibility:hidden}.canvas,.canvas *{visibility:visible}.canvas{position:absolute;left:0;top:0;width:100%;overflow:visible;color:#000}.lk{display:none}}
+.typ{opacity:.7;font-style:italic}
+.typ::after{content:"";animation:dots 1s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.cm.n{background:transparent;border:2px dashed var(--amber);color:var(--amber);font-size:.78rem}
+</style>
+</head>
+<body>
+
+<nav class="bar" aria-label="Primary"><div class="wrap">
+  <div class="brand">KARYA<i>SYNC</i></div>
+  <ul><li><a href="#workflow">Workflow</a></li><li><a href="#templates">Templates</a></li><li><a href="#app">Workspace</a></li><li><a href="#privacy">Privacy</a></li><li><a href="#exports">Exports</a></li></ul>
+  <a class="btn" href="#app">Open workspace</a>
+</div></nav>
+
+<header class="hero">
+<div class="dots"></div><div class="beam"></div>
+<div class="wrap">
+  <div class="slate"><b aria-hidden="true"></b><span>AI Meeting Documentation Assistant</span></div>
+  <h1>Messy notes,<span>assigned</span> <em>tasks.</em></h1>
+  <div class="low">
+    <div>
+      <p class="tag"><b>Turn messy meeting notes into decisions, owners and due dates in seconds.</b> Every item links back to the line it came from.</p>
+      <div class="cta"><a class="btn" href="#app">Open workspace</a><a class="btn g" href="#templates">Try a template</a></div>
+    </div>
+    <div class="vf" id="pv" aria-label="Interactive preview">
+      <div class="vf-h"><span class="rec">Raw notes</span><button type="button" class="btn" id="tg" style="padding:4px 12px;box-shadow:3px 3px 0 var(--red)">Structure it</button></div>
+      <div class="ln"><b>Riya</b>I'll send the slides by Friday.<u class="u-a">Task · Riya · Fri</u></div>
+      <div class="ln"><b>All</b>Going with option B for the demo.<u class="u-d">Decision</u></div>
+      <div class="ln"><b>Sara</b>Who's running the live demo?<u class="u-q">Open question</u></div>
+    </div>
+  </div>
+</div>
+</header>
+
+<section id="workflow">
+<div class="wrap">
+  <p class="sc">Workflow</p>
+  <h2>Before, during, after</h2>
+  <div class="grid g3">
+    <div class="box"><span class="pill">Before</span><h3>Bring in the notes</h3><p>Paste notes, or import a .txt, .md, .vtt or .srt transcript. Direct Zoom, Meet and Teams connections are planned, not built yet.</p></div>
+    <div class="box"><span class="pill">During</span><h3>Live tagging</h3><p>As you type in offline mode, KaryaSync tags each line as a decision, task or open question and updates the minutes instantly.</p></div>
+    <div class="box"><span class="pill">After</span><h3>Follow-up and export</h3><p>Fix flagged gaps, then export Markdown, PDF or CSV, or copy ready-to-paste text for Slack, Notion, Jira and Linear.</p></div>
+  </div>
+  <div class="cta" style="margin-top:22px"><button type="button" class="btn" id="wd">Watch the AI chat demo</button><span class="note" style="align-self:center;margin:0">A scripted conversation on the sample meeting. It is not a live AI.</span></div>
+</div>
+</section>
+
+<section id="templates">
+<div class="wrap">
+  <p class="sc">Templates</p>
+  <h2>Built for the meeting you have</h2>
+  <p class="lead">Each template loads sample notes into the workspace and, in AI mode, adds meeting-specific guidance to the prompt.</p>
+  <div class="grid g4">
+    <div class="box"><h3>Standup</h3><p>Progress, plans and blockers as open questions.</p><button type="button" class="btn g tp" data-t="standup" style="margin-top:10px">Load sample</button></div>
+    <div class="box"><h3>Sales call</h3><p>Needs, objections, budget and next steps.</p><button type="button" class="btn g tp" data-t="sales" style="margin-top:10px">Load sample</button></div>
+    <div class="box"><h3>1:1</h3><p>Feedback, goals and follow-ups per person.</p><button type="button" class="btn g tp" data-t="one" style="margin-top:10px">Load sample</button></div>
+    <div class="box"><h3>Board minutes</h3><p>Formal decisions and who is responsible.</p><button type="button" class="btn g tp" data-t="board" style="margin-top:10px">Load sample</button></div>
+  </div>
+</div>
+</section>
+
+<section id="app">
+<div class="wrap">
+  <p class="sc">Workspace</p>
+  <h2>Review, edit, export</h2>
+  <p class="lead">Left: your saved meetings and settings. Center: the minutes, editable in place. Right: the source notes, with every line colour-coded, and an Ask AI box.</p>
+  <div class="ws">
+    <aside class="pane" aria-label="Meetings">
+      <button class="btn" type="button" id="newm" style="width:100%">+ New meeting</button>
+      <label class="btn g" style="display:block;text-align:center;margin-top:10px;cursor:pointer">Import transcript<input type="file" id="imp" accept=".txt,.md,.vtt,.srt" hidden></label>
+      <input class="f" id="q" type="search" placeholder="Search meetings" aria-label="Search meetings" style="margin-top:12px">
+      <select class="f" id="tf" aria-label="Filter by template"><option value="all">All templates</option><option value="general">General</option><option value="standup">Standup</option><option value="sales">Sales call</option><option value="one">1:1</option><option value="board">Board minutes</option></select>
+      <div id="hist"></div>
+      <div style="margin-top:16px;border-top:2px solid rgba(255,244,214,.25);padding-top:10px">
+        <h3 style="font-size:1.15rem">Engine</h3>
+        <div class="opt"><label><input type="radio" name="mode" value="rules" checked> Offline</label><label><input type="radio" name="mode" value="ai"> AI model</label></div>
+        <div id="aibox" hidden>
+          <select class="f" id="provider" aria-label="AI provider">
+            <option value="anthropic">Anthropic</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
+          <input class="f" id="key" type="password" placeholder="Anthropic API key" aria-label="API key" autocomplete="off">
+          <input class="f" id="model" type="text" value="claude-sonnet-4-5" aria-label="Model name">
+          <button class="btn g" type="button" id="reg" style="padding:4px 12px;margin-top:4px">Generate with AI</button>
+          <p class="note" id="keynote">Key stays in this tab and goes only to api.anthropic.com. Never publish this page with a key in it.</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="pane ctr" aria-label="Minutes">
+      <div class="xbar">
+        <button class="btn" type="button" id="sv" style="padding:4px 12px">Save</button>
+        <label class="rv" style="margin:0"><input type="checkbox" id="rv"> Reviewed against notes</label>
+        <button class="btn g gx" type="button" data-x="md" disabled>Markdown</button><button class="btn g gx" type="button" data-x="pdf" disabled>PDF</button><button class="btn g gx" type="button" data-x="csv" disabled>CSV</button><button class="btn g gx" type="button" data-x="slack" disabled>Slack</button><button class="btn g gx" type="button" data-x="jira" disabled>Jira/Linear</button><button class="btn g gx" type="button" data-x="notion" disabled>Notion</button><button class="btn g gx" type="button" data-x="mail" disabled>Email</button>
+      </div>
+      <div class="canvas" id="out"></div>
+    </main>
+
+    <aside class="pane" aria-label="Source and Ask AI">
+      <div class="row" style="margin-bottom:8px"><button type="button" class="btn" id="vs" style="padding:4px 12px">Source</button><button type="button" class="btn g" id="ve" style="padding:4px 12px">Edit notes</button></div>
+      <div id="srcv"></div>
+      <textarea id="notes" rows="12" aria-label="Meeting notes" hidden></textarea>
+      <p class="note" id="st" role="status"></p>
+      <div class="chatb">
+        <div class="row" style="justify-content:space-between;align-items:center"><h3 style="font-size:1.15rem">Ask AI</h3><button type="button" class="btn g" id="pd" style="padding:2px 10px;font-size:.78rem">Play demo</button></div>
+        <div id="chat"></div>
+        <div class="try"><button type="button" data-q="Draft a follow-up email">Follow-up email</button><button type="button" data-q="Who owns what?">Who owns what?</button><button type="button" data-q="What is unresolved?">Unresolved</button></div>
+        <div class="row"><input class="f" id="ask" type="text" placeholder="Ask about the meeting" aria-label="Ask about the meeting" style="flex:1;margin:0"><button class="btn" type="button" id="send" style="padding:6px 14px">Ask</button></div>
+      </div>
+    </aside>
+  </div>
+</div>
+</section>
+
+<section id="privacy">
+<div class="wrap">
+  <p class="sc">Privacy and trust</p>
+  <h2>What happens to your notes</h2>
+  <div class="grid g3">
+    <div class="box"><h3>Offline by default</h3><p>In offline mode, notes are processed in your browser. Saved meetings stay in this browser's local storage, and nothing is uploaded.</p></div>
+    <div class="box"><h3>AI mode is your choice</h3><p>If you switch to AI mode, the notes go to your chosen Anthropic or Google Gemini API with your own key. The key is never saved.</p></div>
+    <div class="box"><h3>Human review first</h3><p>Exports unlock only after you confirm you checked the minutes against the source notes.</p></div>
+  </div>
+  <p class="code"><b>Compliance:</b> this is a project prototype. It holds no SOC 2 or GDPR certification and has no accounts, servers or audit logs, so it should not be used for confidential or regulated recordings. Those controls would be required before real client use.</p>
+</div>
+</section>
+
+<section id="exports">
+<div class="wrap">
+  <p class="sc">Exports and integrations</p>
+  <h2>Get the work out of the notes</h2>
+  <div class="grid g2">
+    <div class="box"><span class="pill">Works today</span><h3>Ready-to-paste formats</h3><ul><li>Markdown and CSV downloads, and PDF through print</li><li>Slack-formatted recap</li><li>Task checklist for Jira and Linear</li><li>Markdown for Notion</li><li>Follow-up email draft</li></ul></div>
+    <div class="box"><span class="pill">Planned, not built</span><h3>Direct connections</h3><ul><li>Zoom, Google Meet and Teams bots</li><li>Calendar connection</li><li>One-click push to Slack, Notion, Jira, Linear and CRMs</li><li>Live audio capture and audio-synced transcript</li><li>Real-time team editing and comments</li></ul></div>
+  </div>
+</div>
+</section>
+
+<footer><div class="wrap">KaryaSync · AI Meeting Documentation Assistant · Built with HTML5, CSS3 and JavaScript, with AI tools assisting under human review.</div></footer>
+<a class="top" href="#" aria-label="Back to top">TOP</a>
+<script>
+var $=function(i){return document.getElementById(i)},cur=null,tpl="general",NS="Not specified",hl=-1,timer,wn,dt=new Date().toISOString().slice(0,10);
+var DAYS="today|tomorrow|tonight|eod|next week|this week|monday|tuesday|wednesday|thursday|friday|saturday|sunday";
+var DUE=new RegExp("\\s*\\b(?:by |before |on )?("+DAYS+")\\b","i");
+var DEC=/\b(decided|agreed|going with|go with|approved|confirmed|settled)\b/i;
+var NEG=/\b(no|not|nothing|without|yet)\b[^.]{0,25}\b(agreed|decided|confirmed|approved|settled)\b|\bcame up\b|\bto be decided\b/i;
+var QS=/\?|\b(asked|wondered|unsure|not sure|maybe|perhaps|might|should we|could we)\b/i;
+var ACT=/'ll|\bwill\b|\bneeds? to\b|\bto (?:book|send|share|prepare|review|finish|update|fix|write|schedule|email|call)\b/i;
+var VAGUE=/^(someone|somebody|anyone|everyone|all|team|we|they)$/i;
+var TPL={general:["General",""],standup:["Standup","This is a daily standup. Treat blockers as open questions."],sales:["Sales call","This is a sales call. Capture customer needs, objections, budget and next steps."],one:["1:1","This is a 1:1. Capture feedback, goals and follow-ups per person."],board:["Board minutes","These are board minutes. Capture formal decisions and who is responsible."]};
+var SAMPLE={
+general:"Project sync, 18 Nov. Present: Riya, Dev, Sara, Arjun.\nRiya said she'll finish and send the slides by Friday.\nCompared demo option A and option B. All agreed to go with option B.\nSara asked who is running the live demo. Dev said maybe him, not sure yet.\nArjun will book the demo room tomorrow.\nSomeone needs to share the budget figure.\nBudget came up, no figure agreed.\nNext sync on Tuesday.",
+standup:"Daily standup, 20 Nov. Present: Mira, Jon, Pooja.\nMira finished the login page and will start the API tests tomorrow.\nJon is blocked on the staging server, not sure who has access.\nPooja will ask IT for staging access today.\nAll agreed to demo on Thursday.",
+sales:"Sales call, Acme Ltd, 19 Nov. Present: Dev, Ananya, Mr Rao.\nMr Rao said the budget is not approved yet.\nAnanya will send the pricing proposal by Monday.\nDev will book a product demo next week.\nThey agreed to a pilot for 30 days.\nWho signs the contract?",
+one:"1:1, Sam and Priya, 21 Nov. Present: Sam, Priya.\nPriya will share her growth goals by Friday.\nSam agreed to set up a monthly mentoring slot.\nPriya felt the sprint load was too high.\nSam will talk to the team lead about workload next week.",
+board:"Board meeting, Q3 review, 22 Nov. Present: Chair, Meera, Karan, Leela.\nMeera presented the Q3 results.\nThe board approved the new hiring plan.\nKaran will circulate the audit report by Wednesday.\nThe dividend proposal was not decided, to be decided next meeting.\nLeela asked whether the office lease should be renewed."};
+function sys(){return 'Act as a technical meeting secretary. '+TPL[tpl][1]+' Use only facts in the notes; never invent names, dates or decisions. Return ONLY JSON, no markdown: {"title":string,"summary":[string],"decisions":[{"text":string,"source":string}],"actions":[{"task":string,"owner":string,"deadline":string,"source":string}],"questions":[{"text":string,"source":string}]}. "source" is the exact note line. Only confirmed decisions go in decisions; tentative ideas go in questions. If an owner or deadline is missing, write "Not specified".'}
+function cap(x){return x.charAt(0).toUpperCase()+x.slice(1)}
+function sents(t){return t.split(/(?<=[.!?])\s+|\n+/).map(function(x){return x.trim()}).filter(Boolean)}
+function names(t){var m=t.match(/present:\s*([^\n]+)/i);return m?m[1].replace(/\./g,"").split(/,|\band\b/).map(function(n){return n.trim()}).filter(Boolean):[]}
+
+function rules(t){
+  var nm=names(t),d={title:"Meeting minutes",summary:[],decisions:[],actions:[],questions:[]};
+  sents(t).forEach(function(l,i){
+    if(/^present:/i.test(l))return;
+    if(i===0&&!(ACT.test(l)||DEC.test(l)||QS.test(l))){d.title=l.replace(/\.$/,"");return}
+    var sp=l.match(/^([A-Z][a-z]+):\s*(.*)$/),b=sp?sp[2]:l;
+    if(QS.test(b)||NEG.test(b)){d.questions.push({text:b,source:l});return}
+    if(DEC.test(b)){d.decisions.push({text:b,source:l});return}
+    if(ACT.test(b)){
+      var o=NS;
+      for(var k=0;k<nm.length;k++){if(new RegExp("\\b"+nm[k]+"\\b").test(b)){o=nm[k];break}}
+      if(o===NS){if(sp&&/\b(i'll|i will|i can)\b/i.test(b))o=sp[1];else{var w=b.match(/^([A-Z][a-z]+) (?:will|to|needs)/);if(w&&!VAGUE.test(w[1]))o=w[1]}}
+      var dm=b.match(DUE),task=b.split(/'ll\s+|\bwill\s+|\bneeds? to\s+/i).pop().replace(DUE,"").replace(/[.\s]+$/,"");
+      d.actions.push({task:cap(task),owner:o,deadline:dm?cap(dm[1]):NS,source:l});return}
+    d.summary.push(b);
+  });
+  d.summary=d.summary.slice(0,3);
+  d.summary.push("Recorded "+d.decisions.length+" decision(s), "+d.actions.length+" action item(s) and "+d.questions.length+" open question(s).");
+  return d;
+}
+async function callAI(system,user){
+  var key=$("key").value.trim();if(!key)throw new Error("Enter your API key first.");
+  var model=$("model").value.trim(),provider=$("provider").value,r,j;
+  if(!model)throw new Error("Enter a model name.");
+  if(provider==="gemini"){
+    try{
+      r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(key),{method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],generationConfig:{temperature:0.2,maxOutputTokens:1500,responseMimeType:"application/json"}})});
+    }catch(e){throw new Error("Could not reach the Google Gemini API. Check your internet connection and browser access, then try again. "+e.message)}
+    try{j=await r.json()}catch(e){throw new Error("Google Gemini returned an unreadable response (HTTP "+r.status+").")}
+    if(!r.ok)throw new Error(j.error&&j.error.message||"Google Gemini request failed (HTTP "+r.status+").");
+    var candidate=j.candidates&&j.candidates[0];
+    if(!candidate||!candidate.content||!candidate.content.parts){
+      var reason=(j.promptFeedback&&j.promptFeedback.blockReason)||(candidate&&candidate.finishReason);
+      throw new Error(reason?"Google Gemini could not return a response ("+reason+").":"Google Gemini returned no response. Check that the selected model supports generateContent.");
+    }
+    return candidate.content.parts.map(function(c){return c.text||""}).join("");
+  }
+  r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+    headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:model,max_tokens:1500,system:system,messages:[{role:"user",content:user}]})});
+  j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||"The request failed.");
+  return j.content.map(function(c){return c.text||""}).join("");
+}
+async function ai(t){
+  var response=(await callAI(sys(),t)).replace(/```json|```/g,"").trim(),d;
+  try{d=JSON.parse(response)}catch(e){throw new Error("The AI returned invalid JSON. Check the selected model and try again.")}
+  var list=function(v){return Array.isArray(v)?v:[]};
+  return{title:typeof d.title==="string"&&d.title.trim()?d.title:"Meeting minutes",summary:list(d.summary),decisions:list(d.decisions),actions:list(d.actions),questions:list(d.questions)};
+}
+
+/* helpers */
+function el(tag,txt,par,cls){var e=document.createElement(tag);if(txt!==null&&txt!==undefined&&txt!=="")e.textContent=txt;if(cls)e.className=cls;if(par)par.appendChild(e);return e}
+function gaps(d){return d.actions.filter(function(a){return !a.owner||a.owner===NS||!a.deadline||a.deadline===NS})}
+function mt(a,b){return !!a&&!!b&&(a===b||a.indexOf(b)>-1||b.indexOf(a)>-1)}
+function lineOf(s){var a=sents($("notes").value);for(var i=0;i<a.length;i++)if(mt(a[i],s))return i;return -1}
+function typ(l){if(!cur)return"";var m=function(a){return a.some(function(x){return mt(l,x.source)})};return m(cur.decisions)?"d":m(cur.actions)?"a":m(cur.questions)?"q":""}
+function view(m){$("srcv").hidden=m!=="src";$("notes").hidden=m!=="edit";$("vs").className=m==="src"?"btn":"btn g";$("ve").className=m==="edit"?"btn":"btn g";$("vs").style.padding=$("ve").style.padding="4px 12px"}
+function show(s){view("src");hl=lineOf(s);src()}
+function warn(){if(!wn||!cur)return;var n=gaps(cur).length;wn.hidden=!n;wn.textContent=n+" action item(s) need an owner or due date before you share."}
+function ed(par,tag,c,k,cls){var e=el(tag,null,par,cls),s=el("span",c[k],e);s.contentEditable="true";s.oninput=function(){c[k]=s.textContent};return e}
+function lk(par,x){if(!x.source)return;var b=el("button","source",par,"lk");b.type="button";b.onclick=function(){show(x.source)}}
+function fld(r,a,k,ph){var x=el("input",null,r);x.type="text";x.placeholder=ph;x.value=(a[k]&&a[k]!==NS)?a[k]:"";x.className=x.value?"":"bad";x.oninput=function(){a[k]=x.value||NS;x.className=x.value?"":"bad";warn()}}
+
+/* center canvas */
+function canvas(){
+  var o=$("out");o.textContent="";
+  if(!cur){el("p","Add notes, import a transcript or load a template to generate minutes.",o);return}
+  var d=cur,m;
+  el("h3",d.title,o,"ct");
+  m=el("div",null,o,"meta");
+  var di=el("input",null,m);di.type="date";di.value=dt;di.setAttribute("aria-label","Meeting date");di.oninput=function(){dt=di.value};
+  el("span","Template: "+TPL[tpl][0],m);el("span","Attendees: "+(names($("notes").value).join(", ")||"not listed"),m);
+  wn=el("p",null,o,"warn");warn();
+  el("h3","Executive summary",o);var u=el("ul",null,o);d.summary.forEach(function(x,i){ed(u,"li",d.summary,i)});
+  el("h3","Key decisions",o);
+  if(!d.decisions.length)el("p","No confirmed decisions.",o);
+  d.decisions.forEach(function(x){var c=ed(o,"div",x,"text","cal");lk(c,x)});
+  el("h3","Action items",o);
+  if(!d.actions.length)el("p","No action items found.",o);
+  d.actions.forEach(function(a){
+    var r=el("div",null,o,"ar"+(a.done?" done":"")),c=el("input",null,r);c.type="checkbox";c.checked=!!a.done;c.setAttribute("aria-label","Mark done");
+    c.onchange=function(){a.done=c.checked;r.classList.toggle("done",c.checked)};
+    var t=el("input",null,r,"t");t.type="text";t.value=a.task;t.oninput=function(){a.task=t.value};
+    fld(r,a,"owner","Owner");fld(r,a,"deadline","Due");lk(r,a);
+  });
+  el("h3","Open questions",o);
+  if(!d.questions.length)el("p","No open questions.",o);
+  var q=el("ul",null,o);d.questions.forEach(function(x){var li=ed(q,"li",x,"text");lk(li,x)});
+  el("p","AI-assisted draft. Reviewed by a team member before sharing.",o,"src");
+}
+/* right pane */
+function src(){
+  var v=$("srcv");v.textContent="";var s=sents($("notes").value);
+  if(!s.length){el("p","No notes yet. Choose Edit notes to type or paste.",v,"note");return}
+  s.forEach(function(l,i){var r=el("div",null,v,"sl "+typ(l)+(i===hl?" hl":""));r.id="sl"+i;el("b",i+1,r);el("span",l,r)});
+  if(hl>-1&&$("sl"+hl))$("sl"+hl).scrollIntoView({block:"nearest"});
+}
+function lock(){$("rv").checked=false;[].forEach.call(document.querySelectorAll(".gx"),function(b){b.disabled=true})}
+async function gen(){
+  var t=$("notes").value.trim(),st=$("st"),mode=document.querySelector("input[name=mode]:checked").value;
+  if(!t){cur=null;canvas();src();lock();st.textContent="";return}
+  if(mode==="ai"){st.textContent="Asking the AI model...";try{cur=await ai(t)}catch(e){st.textContent="Could not generate minutes: "+e.message;return}}
+  else cur=rules(t);
+  hl=-1;canvas();src();lock();st.textContent=mode==="ai"?"AI minutes ready. Check each item against the source.":"Tagged "+sents(t).length+" lines.";
+}
+
+/* exports */
+function tasks(d){return d.actions.map(function(a){return"- ["+(a.done?"x":" ")+"] "+a.task+" (Owner: "+(a.owner||NS)+", Due: "+(a.deadline||NS)+")"}).join("\n")}
+function toText(d){
+  var L=["# "+d.title,"Date: "+dt,"","## Summary"];
+  d.summary.forEach(function(x){L.push("- "+x)});
+  L.push("","## Decisions");d.decisions.forEach(function(x){L.push("- "+x.text)});if(!d.decisions.length)L.push("- None confirmed");
+  L.push("","## Action items",tasks(d),"","## Open questions");d.questions.forEach(function(x){L.push("- "+x.text)});if(!d.questions.length)L.push("- None");
+  L.push("","_AI-assisted draft. Reviewed by a team member before sharing._");return L.join("\n");
+}
+function slack(d){var L=["*"+d.title+"*"];if(d.decisions.length){L.push("","*Decisions*");d.decisions.forEach(function(x){L.push("• "+x.text)})}
+  L.push("","*Action items*");d.actions.forEach(function(a){L.push("• "+(a.owner||NS)+": "+a.task+" ("+(a.deadline||NS)+")")});return L.join("\n")}
+function csv(d){var q=function(s){return '"'+String(s||"").replace(/"/g,'""')+'"'};
+  return["Task,Owner,Deadline,Done"].concat(d.actions.map(function(a){return[q(a.task),q(a.owner),q(a.deadline),a.done?"yes":"no"].join(",")})).join("\n")}
+function followUp(d){
+  var L=["Subject: Recap: "+d.title,"","Hi team,","","Thanks for joining. Here is what we covered."];
+  if(d.decisions.length){L.push("","Decisions:");d.decisions.forEach(function(x){L.push("- "+x.text)})}
+  if(d.actions.length){L.push("","Action items:");d.actions.forEach(function(a){L.push("- "+(a.owner&&a.owner!==NS?a.owner:"Owner to be assigned")+": "+a.task+(a.deadline&&a.deadline!==NS?" (due "+a.deadline+")":" (date to be set)"))})}
+  if(d.questions.length){L.push("","Still open:");d.questions.forEach(function(x){L.push("- "+x.text)})}
+  L.push("","Please reply if anything here looks wrong.");return L.join("\n");
+}
+function cp(txt,msg){
+  var done=function(){$("st").textContent=msg};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(function(){fallbackCopy(txt,done)});return}
+  fallbackCopy(txt,done);
+}
+function fallbackCopy(txt,msg){
+  var t=document.createElement("textarea");t.value=txt;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();
+  try{document.execCommand("copy");msg()}catch(e){$("st").textContent="Could not copy automatically. Select the text manually."}
+  t.remove();
+}
+function dl(txt,name,type){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:type}));a.download=name;a.click()}
+var X={md:function(){dl(toText(cur),"meeting-minutes.md","text/markdown")},csv:function(){dl(csv(cur),"action-items.csv","text/csv")},pdf:function(){window.print()},
+  slack:function(){cp(slack(cur),"Slack format copied.")},jira:function(){cp(tasks(cur),"Task checklist copied for Jira or Linear.")},notion:function(){cp(toText(cur),"Markdown copied for Notion.")},mail:function(){cp(followUp(cur),"Follow-up email copied.")}};
+
+/* history */
+function load(){try{return JSON.parse(localStorage.getItem("ks_meetings")||"[]")}catch(e){return[]}}
+function store(a){try{localStorage.setItem("ks_meetings",JSON.stringify(a))}catch(e){}}
+function hist(){
+  var h=$("hist");h.textContent="";var q=$("q").value.toLowerCase(),f=$("tf").value;
+  var L=load().filter(function(m){return(f==="all"||m.tpl===f)&&(m.title+m.notes).toLowerCase().indexOf(q)>-1});
+  if(!L.length){el("p","No saved meetings yet. Generate minutes, then press Save.",h,"note");return}
+  L.forEach(function(m){var r=el("div",null,h,"mt"),b=el("button",m.title,r);b.type="button";b.onclick=function(){tpl=m.tpl;$("notes").value=m.notes;gen()};
+    var x=el("button","\u00d7",r);x.type="button";x.setAttribute("aria-label","Delete "+m.title);x.onclick=function(){store(load().filter(function(y){return y.id!==m.id}));hist()}});
+}
+
+/* Ask AI */
+function say(cls,txt){var m=el("div",txt,$("chat"),"cm "+cls);$("chat").scrollTop=$("chat").scrollHeight;return m}
+async function ask(q){
+  if(!q)return;demoRun++;$("pd").textContent="Replay demo";say("u",q);
+  if(!cur){say("b","Generate minutes first.");return}
+  var mode=document.querySelector("input[name=mode]:checked").value;
+  if(mode==="ai"){try{say("b",await callAI("Answer questions about the meeting notes below. Use only the notes. If the answer is not in them, say so. Notes:\n"+$("notes").value,q))}catch(e){say("b","Could not ask the AI: "+e.message)}return}
+  say("b",offline(q));
+}
+function offline(q){
+  var l=q.toLowerCase(),d=cur,li=function(a){return a.map(function(x){return"- "+x.text}).join("\n")};
+  if(/follow.?up|email/.test(l))return followUp(d);
+  if(/missing|no owner|without|gap/.test(l)){var g=gaps(d);return g.length?g.map(function(a){return"- "+a.task+": "+((!a.owner||a.owner===NS)?"no owner":"owner "+a.owner)+", "+((!a.deadline||a.deadline===NS)?"no due date":"due "+a.deadline)}).join("\n"):"Every action item has an owner and a due date."}
+  if(/who|owner|own\b|assign/.test(l))return d.actions.length?d.actions.map(function(a){return(a.owner&&a.owner!==NS?a.owner:"Unassigned")+": "+a.task+" ("+(a.deadline||NS)+")"}).join("\n"):"No action items found.";
+  if(/open|unresolved|pending|question/.test(l)){var u=d.questions.map(function(x){return"- "+x.text}).concat(gaps(d).map(function(a){return"- Missing owner or date: "+a.task}));return u.length?u.join("\n"):"Nothing unresolved."}
+  if(/decid|decision/.test(l))return d.decisions.length?li(d.decisions):"No confirmed decisions.";
+  var w=l.split(/\W+/).filter(function(x){return x.length>3}),hit=sents($("notes").value).filter(function(s){return w.some(function(x){return s.toLowerCase().indexOf(x)>-1})});
+  return hit.length?"Lines that mention it:\n"+hit.join("\n"):"I could not find that in the notes. Switch to AI model mode for open-ended questions.";
+}
+var demoRun=0;
+function playDemo(){
+  var id=++demoRun,Q=["Draft a follow-up email","Who owns what?","Which tasks are missing an owner or date?","What is unresolved?"],i=0;
+  document.querySelector("input[name=mode][value=rules]").checked=true;$("aibox").hidden=true;
+  tpl="general";$("notes").value=SAMPLE.general;gen();view("src");$("chat").textContent="";
+  $("app").scrollIntoView();$("pd").textContent="Playing...";
+  say("n","Demo conversation. The answers are scripted from the sample meeting, not from a live AI.");
+  (function next(){
+    if(id!==demoRun)return;
+    if(i>=Q.length){$("pd").textContent="Replay demo";return}
+    var q=Q[i++];say("u",q);var t=say("b","Typing");t.classList.add("typ");
+    setTimeout(function(){if(id!==demoRun)return;t.classList.remove("typ");t.textContent=offline(q);$("chat").scrollTop=$("chat").scrollHeight;setTimeout(next,1500)},1000);
+  })();
+}
+
+/* wiring */
+[].forEach.call(document.querySelectorAll("input[name=mode]"),function(r){r.onchange=function(){$("aibox").hidden=document.querySelector("input[name=mode]:checked").value!=="ai"}});
+$("provider").onchange=function(){var gemini=this.value==="gemini";$("key").placeholder=gemini?"Google Gemini API key":"Anthropic API key";$("model").value=gemini?"gemini-3.8-flash":"claude-sonnet-4-5";$("keynote").textContent=gemini?"Key stays in this tab and goes only to generativelanguage.googleapis.com. Never publish this page with a key in it.":"Key stays in this tab and goes only to api.anthropic.com. Never publish this page with a key in it."};
+$("notes").oninput=function(){clearTimeout(timer);timer=setTimeout(function(){if(document.querySelector("input[name=mode]:checked").value==="rules")gen()},350)};
+$("reg").onclick=gen;
+$("vs").onclick=function(){view("src");src()};$("ve").onclick=function(){view("edit");$("notes").focus()};
+$("newm").onclick=function(){$("notes").value="";tpl="general";cur=null;gen();view("edit");$("notes").focus()};
+$("imp").onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){$("notes").value=r.result.replace(/^WEBVTT.*$|^\d+\s*$|^.*-->.*$/gm,"").replace(/\n{2,}/g,"\n").trim();gen()};r.readAsText(f)};
+$("q").oninput=$("tf").onchange=hist;
+$("sv").onclick=function(){if(!cur)return;var a=load();a.unshift({id:Date.now(),title:cur.title,notes:$("notes").value,tpl:tpl});store(a.slice(0,30));hist();$("st").textContent="Saved to this browser's history."};
+$("rv").onchange=function(){var on=this.checked&&!!cur;[].forEach.call(document.querySelectorAll(".gx"),function(b){b.disabled=!on})};
+[].forEach.call(document.querySelectorAll(".gx"),function(b){b.onclick=function(){X[b.getAttribute("data-x")]()}});
+[].forEach.call(document.querySelectorAll(".tp"),function(b){b.onclick=function(){tpl=b.getAttribute("data-t");$("notes").value=SAMPLE[tpl];$("app").scrollIntoView();gen()}});
+[].forEach.call(document.querySelectorAll(".try button"),function(b){b.onclick=function(){ask(b.getAttribute("data-q"))}});
+$("send").onclick=function(){var v=$("ask").value.trim();$("ask").value="";ask(v)};
+$("ask").addEventListener("keydown",function(e){if(e.key==="Enter")$("send").click()});
+$("pd").onclick=$("wd").onclick=playDemo;
+$("tg").onclick=function(){$("pv").classList.toggle("tagged")};
+setTimeout(function(){$("pv").classList.add("tagged")},1500);
+$("notes").value=SAMPLE.general;view("src");hist();gen();
+</script>
+
+</body>
+</html>

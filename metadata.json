@@ -1,0 +1,6 @@
+{
+  "name": "KaryaSync",
+  "description": "KaryaSync is an AI meeting documentation assistant that turns notes and recorded Zoom or Google Meet calls into structured summaries, decisions, action items and open questions.",
+  "requestFramePermissions": ["microphone", "display-capture"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
